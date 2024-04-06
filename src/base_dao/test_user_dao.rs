@@ -7,8 +7,6 @@ use std::fmt;
 use std::collections::HashMap;
 use std::any::Any;
 
-
-
 pub fn query_list(tx: &mut Transaction, condition_params: HashMap<String, Box<dyn Any>>, condition: &[foundation::dao::Condition]) -> Result<Vec<model::test_user::TestUser>> {
     let mut query_sql = format!("SELECT {} FROM {}", model::test_user::get_field_sql("") ,model::test_user::TABLE_NAME);
     let mut params: Vec<Value> = vec![];
@@ -22,11 +20,10 @@ pub fn query_list(tx: &mut Transaction, condition_params: HashMap<String, Box<dy
         } else {
             where_sql = format!(" {} {} ?", i_key, operator)
         }
+        debug!("val.downcast_ref::<i32>() = {:?}", val.downcast_ref::<i32>());
 
-        if "state" == i_key {
-            params.push(val.downcast_ref::<i32>().unwrap().into());
-        } else if "user_name" == i_key {
-            params.push(val.downcast_ref::<String>().unwrap().into());
+        if !foundation::dao::pot_params_condition(&mut params, &val) {
+            warn!("test_user_dao::query_list::pot_params_condition - {} 参数装入失败", key)
         }
     }
 

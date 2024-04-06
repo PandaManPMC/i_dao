@@ -1,3 +1,4 @@
+use log::debug;
 use mysql::Value;
 use crate::foundation;
 
@@ -90,6 +91,95 @@ pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[foundation::dao:
 
     return (where_sql, page_index, page_size, order_by_sql_field, order_by_sql_type)
 }
+
+/// pot_params_condition 参数条件分拣
+pub fn pot_params_condition(params: &mut Vec<Value>, val :&Box<dyn Any>) -> bool {
+    let mut i = 0;
+    while i < 11 {
+        match val.downcast_ref::<String>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<u64>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<u8>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<i32>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<i64>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<u32>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<u16>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<u128>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<i128>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<i16>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        match val.downcast_ref::<i8>() {
+            Some(v) => {
+                params.push(v.into());
+                return true;
+            },
+            None => {}
+        }
+        i+=1;
+    }
+
+    debug!("pot_params_condition 参数未找到条件!");
+    return false;
+}
+
 
 /// get_real_key_operator 获取条件键附带的运算符以及截取真实的键
 pub fn get_real_key_operator(key: String) -> (String, String) {
