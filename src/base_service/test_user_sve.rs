@@ -55,26 +55,12 @@ pub fn update_by_id(m: &mut model::test_user::TestUser) -> Result<(),Box<dyn std
     return Ok(());
 }
 
-
-pub fn query_list()  -> Result<Vec<model::test_user::TestUser>, Box<dyn std::error::Error>> {
+pub fn query_list(params: HashMap<String, Box<dyn Any>>, condition: &[foundation::dao::Condition]) -> Result<Vec<model::test_user::TestUser>, Box<dyn std::error::Error>> {
     let mut conn = i_source::i_mysql::get_conn(foundation::DATA_SOURCE_KEY_DEFAULT);
     let mut binding = conn?;
     let mut tx = binding.start_transaction(TxOpts::default()).unwrap();
 
-    let page_index = foundation::dao::Condition::PageIndex(1);
-    let page_size = foundation::dao::Condition::PageSize(3);
-    let asc = foundation::dao::Condition::OrderByAESOrDESC(1);
-
-    let mut condition_field:HashMap<String, Box<dyn Any>> = HashMap::new();
-    // condition_field.insert(String::from("Blue"), Box::new(10));
-    // condition_field.insert(String::from("Red"), Box::new(1.44));
-    // condition_field.insert(String::from("yellow"), Box::new("哈哈"));
-    condition_field.insert(String::from(format!("{}state", foundation::dao::GT)), Box::new(1));
-    condition_field.insert(String::from("user_name"), Box::new(String::from("XINYI_Doge")));
-    condition_field.insert(String::from(format!("{}id", foundation::dao::GT)), Box::new(1u64));
-
-
-    let result = base_dao::test_user_dao::query_list(&mut tx, condition_field,&[page_index, page_size, asc, ]);
+    let result = base_dao::test_user_dao::query_list(&mut tx, params, condition);
     if result.is_err() {
         let _ = tx.rollback();
         warn!("b_s::test_user_sve::query_list 事务失败 回滚! res={:?}", result);

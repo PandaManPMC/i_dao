@@ -20,7 +20,6 @@ pub fn query_list(tx: &mut Transaction, condition_params: HashMap<String, Box<dy
         } else {
             where_sql = format!(" {} {} ?", i_key, operator)
         }
-        debug!("val.downcast_ref::<i32>() = {:?}", val.downcast_ref::<i32>());
 
         if !foundation::dao::pot_params_condition(&mut params, &val) {
             warn!("test_user_dao::query_list::pot_params_condition - {} 参数装入失败", key)

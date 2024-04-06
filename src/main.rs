@@ -9,6 +9,8 @@ mod i_util;
 
 use env_logger::Env;
 use log::{debug, info, trace, warn};
+use std::collections::HashMap;
+use std::any::Any;
 
 fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
@@ -46,7 +48,17 @@ fn test_add_batch() {
 }
 
 fn test_query_list(){
-    let result = base_service::test_user_sve::query_list();
+    let mut params:HashMap<String, Box<dyn Any>> = HashMap::new();
+    params.insert(String::from(format!("{}state", foundation::dao::GT)), Box::new(1));
+    params.insert(String::from("user_name"), Box::new(String::from("XINYI_Doge")));
+    params.insert(String::from(format!("{}id", foundation::dao::GT)), Box::new(1u64));
+
+    let page_index = foundation::dao::Condition::PageIndex(1);
+    let page_size = foundation::dao::Condition::PageSize(3);
+    let asc = foundation::dao::Condition::OrderByAESOrDESC(1);
+
+
+    let result = base_service::test_user_sve::query_list(params, &[page_index, page_size, asc, ]);
     let res = result.unwrap();
     for i in &res {
         println!(
