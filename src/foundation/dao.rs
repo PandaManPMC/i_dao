@@ -1,6 +1,24 @@
 use mysql::Value;
 use crate::foundation;
 
+
+/// LT 小于
+pub const LT:&str = "?<?";
+
+/// GT 大于
+pub const GT:&str = "?>?";
+
+/// LT_EQ 小于等于
+pub const LT_EQ:&str = "?<=";
+
+/// GT_EQ 大于等于
+pub const GT_EQ:&str = "?>=";
+
+/// NO_EQ 不等于
+pub const NO_EQ:&str = "!=?";
+
+
+
 // Condition SQL 列表查询条件
 #[derive(Debug)]
 pub enum Condition {
@@ -44,7 +62,7 @@ pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[foundation::dao:
             },
             foundation::dao::Condition::CreateTimeBegin(create_time_begin) => {
                 if "" != where_sql {
-                    where_sql = " AND created_at >= ?".to_string()
+                    where_sql = format!("{} AND created_at >= ?", where_sql)
                 } else {
                     where_sql = " created_at >= ?".to_string()
                 }
@@ -52,7 +70,7 @@ pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[foundation::dao:
             },
             foundation::dao::Condition::CreateTimeEnd(create_time_end) => {
                 if "" != where_sql {
-                    where_sql = " AND created_at < ?".to_string()
+                    where_sql = format!("{} AND created_at < ?", where_sql);
                 } else {
                     where_sql = " created_at < ?".to_string()
                 }
@@ -71,4 +89,40 @@ pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[foundation::dao:
     }
 
     return (where_sql, page_index, page_size, order_by_sql_field, order_by_sql_type)
+}
+
+/// get_real_key_operator 获取条件键附带的运算符以及截取真实的键
+pub fn get_real_key_operator(key: String) -> (String, String) {
+    let mut i_key = key.clone();
+    let mut operator = "=";
+
+    if 3 < key.len() {
+        let prefix = key[0..3].to_string();
+        match prefix.as_str() {
+            foundation::dao::LT => {
+                i_key = key[3..].to_string();
+                operator = "<";
+            },
+            foundation::dao::GT => {
+                i_key = key[3..].to_string();
+                operator = ">";
+            },
+            foundation::dao::LT_EQ => {
+                i_key = key[3..].to_string();
+                operator = "<=";
+            },
+            foundation::dao::GT_EQ => {
+                i_key = key[3..].to_string();
+                operator = ">=";
+            },
+            foundation::dao::NO_EQ => {
+                i_key = key[3..].to_string();
+                operator = "!=";
+            },
+            _ => {
+                // 不是运算符
+            }
+        }
+    }
+    return (i_key, operator.to_string());
 }

@@ -12,19 +12,22 @@ use std::any::Any;
 pub fn query_list(tx: &mut Transaction, condition_params: HashMap<String, Box<dyn Any>>, condition: &[foundation::dao::Condition]) -> Result<Vec<model::test_user::TestUser>> {
     let mut query_sql = format!("SELECT {} FROM {}", model::test_user::get_field_sql("") ,model::test_user::TABLE_NAME);
     let mut params: Vec<Value> = vec![];
-    // params.push(Value::Bytes("a".as_bytes().to_vec()));
 
     let (mut where_sql,page_index,page_size,mut order_by_sql_field,order_by_sql_type) = foundation::dao::pot_base_condition(&mut params, &condition);
 
-
-    for (key, val) in condition_params.iter(){
-        debug!("{:?} = {:?}", key, val.downcast_ref::<i32>().unwrap());
+    for (key, val) in condition_params.iter() {
+        let (i_key, operator) = foundation::dao::get_real_key_operator(key.to_string());
         if "" != where_sql {
-            where_sql = format!(" AND {} = ?", key)
+            where_sql = format!(" {} AND {} {} ?", where_sql, i_key, operator)
         } else {
-            where_sql = format!(" {} = ?", key)
+            where_sql = format!(" {} {} ?", i_key, operator)
         }
-        params.push(val.downcast_ref::<i32>().unwrap().into());
+
+        if "state" == i_key {
+            params.push(val.downcast_ref::<i32>().unwrap().into());
+        } else if "user_name" == i_key {
+            params.push(val.downcast_ref::<String>().unwrap().into());
+        }
     }
 
     if "" != where_sql{

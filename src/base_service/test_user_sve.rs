@@ -69,7 +69,8 @@ pub fn query_list()  -> Result<Vec<model::test_user::TestUser>, Box<dyn std::err
     // condition_field.insert(String::from("Blue"), Box::new(10));
     // condition_field.insert(String::from("Red"), Box::new(1.44));
     // condition_field.insert(String::from("yellow"), Box::new("哈哈"));
-    condition_field.insert(String::from("state"), Box::new(2));
+    condition_field.insert(String::from(format!("{}state", foundation::dao::GT)), Box::new(1));
+    condition_field.insert(String::from("user_name"), Box::new(String::from("XINYI_Doge")));
 
 
     let result = base_dao::test_user_dao::query_list(&mut tx, condition_field,&[page_index, page_size, asc, ]);
