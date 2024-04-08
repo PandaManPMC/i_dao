@@ -2,17 +2,23 @@ use mysql::{params, Row};
 use log::info;
 use mysql::params::Params;
 use crate::{foundation, model};
+use serde::{Serialize, Deserialize};
 
 pub const TABLE_NAME:&str = "test_user";
 pub const FIELDS:[&str;5] = ["id", "created_at", "updated_at", "user_name", "state"];
 pub const ALIAS:&str = "testUser";
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct TestUser{
+    #[serde(rename = "id")]
     pub id: u64,    // search会员编号
+    #[serde(rename = "createdAt")]
     pub created_at: u64,    // 创建时间
+    #[serde(rename = "updatedAt")]
     pub updated_at: u64,    // 最后更新
+    #[serde(rename = "userName")]
     pub user_name: String,  // search用户名
+    #[serde(rename = "state")]
     pub state: u8,  // thing状态:1@正常;2@冻结;3@锁定
 }
 
@@ -123,7 +129,7 @@ impl foundation::model::BaseModel for TestUser {
 
 }
 
-pub(crate) fn get_field_sql(alias: &str) -> String {
+pub fn get_field_sql(alias: &str) -> String {
     let mut columns = String::from("");
     for c in FIELDS {
         if "" != columns {

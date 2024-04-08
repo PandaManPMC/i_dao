@@ -11,6 +11,7 @@ use env_logger::Env;
 use log::{debug, info, trace, warn};
 use std::collections::HashMap;
 use std::any::Any;
+use bson::*;
 
 fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
@@ -64,7 +65,10 @@ fn test_query_list(){
         println!(
             "id = {}, created_at = {}, updated_at = {}, user_name = {}, state = {}",
             i.id, i.created_at, i.updated_at, i.user_name, i.state
-        )
+        );
+
+        let redacted_bson = bson::to_bson(&i).unwrap();
+        println!("{}", redacted_bson);
     }
 }
 
