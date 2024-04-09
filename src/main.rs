@@ -16,10 +16,13 @@ use bson::*;
 
 fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
-    println!("Hello, world!");
+    debug!("Hello, world!");
 
-    i_source::i_mysql::init(foundation::DATA_SOURCE_KEY_DEFAULT.to_string(), "mysql://root:123456@localhost:3306/test_rs");
-    let conn = i_source::i_mysql::get_conn(foundation::DATA_SOURCE_KEY_DEFAULT);
+    base_service::set_date_source_key(String::from("mysql_db1"));
+    debug!("{:?}", base_service::get_data_source_key());
+
+    i_source::i_mysql::init(base_service::get_data_source_key(), "mysql://root:123456@localhost:3306/test_rs");
+    let conn = i_source::i_mysql::get_conn(&base_service::get_data_source_key());
 
     trace!("{:?}", conn);
 
@@ -114,24 +117,24 @@ fn test_update() {
 }
 
 fn test_find(){
-    println!("----------- test_find --------------------");
+    debug!("----------- test_find --------------------");
     let id: u64 = 52;
 
     let res = base_service::test_user_sve::find_by_id(id);
-    println!("{:?}", res);
+    debug!("{:?}", res);
     if res.is_err(){
         warn!("test_find 出现异常 {:?}", res);
         return;
     }
 
     let t = res.unwrap();
-    println!("{:?}", t);
+    debug!("{:?}", t);
     match t {
         Some(user) => {
-            println!("找到用户 user={:?}", user);
+            debug!("找到用户 user={:?}", user);
         },
         None => {
-            println!("未找到用户id={}", id);
+            debug!("未找到用户id={}", id);
         }
     }
 }
