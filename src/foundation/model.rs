@@ -1,4 +1,4 @@
-use mysql::Params;
+use r2d2_mysql::mysql::Params;
 
 pub trait BaseModel {
 

@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 use crate::base_service::test_user_sve::add;
-
+use r2d2_mysql::mysql::OptsBuilder;
 mod model;
 mod base_dao;
 mod base_service;
@@ -13,6 +13,8 @@ use log::{debug, info, trace, warn};
 use std::collections::HashMap;
 use std::any::Any;
 use bson::*;
+use mysql::prelude::TextQuery;
+use std::time::{Duration};
 
 fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
@@ -21,17 +23,27 @@ fn main() {
     base_service::set_date_source_key(String::from("mysql_db1"));
     debug!("{:?}", base_service::get_data_source_key());
 
-    i_source::i_mysql::init(base_service::get_data_source_key(), "mysql://root:123456@localhost:3306/test_rs");
+    let opts = OptsBuilder::new()
+        .ip_or_hostname(Some("localhost"))
+        .user(Some("root"))
+        .pass(Some("123456"))
+        .db_name(Some("test_rs"))
+        .tcp_port(3306)
+        .tcp_connect_timeout(Some(Duration::from_secs(30)));
+
+
+    i_source::i_mysql::init(base_service::get_data_source_key(), opts, 200, 5);
     let conn = i_source::i_mysql::get_conn(&base_service::get_data_source_key());
+
 
     trace!("{:?}", conn);
 
-    // test_add_batch();
+    test_add_batch();
 
-    // test_add();
+    test_add();
     test_find();
     // test_update();
-    test_query_list();
+    // test_query_list();
 
     // let t_sql = model::test_user::get_field_sql_not_pk("hello");
     // info!("{}", t_sql);
@@ -42,11 +54,11 @@ fn main() {
 
 fn test_add_batch() {
     let mut lst: Vec<&mut model::test_user::TestUser> = Vec::new();
-    let mut binding = model::test_user::TestUser::new("xcy 0409 01 2".to_string(), 1);
+    let mut binding = model::test_user::TestUser::new("xcy 0409 01 3".to_string(), 1);
     lst.push(&mut binding);
-    let mut binding2 = model::test_user::TestUser::new("xcy 0409 03 2".to_string(), 1);
+    let mut binding2 = model::test_user::TestUser::new("xcy 0409 03 3".to_string(), 1);
     lst.push(&mut binding2);
-    let mut binding3 = model::test_user::TestUser::new("xcy 0409 02 2".to_string(), 1);
+    let mut binding3 = model::test_user::TestUser::new("xcy 0409 02 3".to_string(), 1);
     lst.push(&mut binding3);
     let res = base_service::test_user_sve::add_batch(&mut lst);
     debug!("{:?}", res);
@@ -85,7 +97,7 @@ fn test_query_list(){
 
 fn test_update() {
     debug!("----------- test_update --------------------");
-    let id: u64 = 50;
+    let id: u64 = 56;
 
     let res = base_service::test_user_sve::find_by_id(id);
     debug!("{:?}", res);

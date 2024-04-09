@@ -1,7 +1,8 @@
 use log::debug;
-use mysql::Value;
 use crate::foundation;
 use std::any::Any;
+use r2d2_mysql::mysql::{Value};
+
 
 /// LT 小于
 pub const LT:&str = "?<?";

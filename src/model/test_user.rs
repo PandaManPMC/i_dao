@@ -1,8 +1,8 @@
-use mysql::{params, Row};
 use log::info;
-use mysql::params::Params;
 use crate::{foundation, model};
 use serde::{Serialize, Deserialize};
+use r2d2_mysql::mysql::{params, Row};
+use r2d2_mysql::mysql::params::Params;
 
 pub const TABLE_NAME:&str = "test_user";
 pub const FIELDS:[&str;5] = ["id", "created_at", "updated_at", "user_name", "state"];
@@ -77,7 +77,7 @@ impl foundation::model::BaseModel for TestUser {
         return columns;
     }
 
-    fn get_params_insert(&self) -> (Params, String, String) {
+    fn get_params_insert(&self) -> (r2d2_mysql::mysql::Params, String, String) {
         let mut columns = String::from("");
         let mut keys = String::from("");
 
