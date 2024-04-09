@@ -59,5 +59,7 @@ pub fn start_tx<F,R>(data_source_key: &str,mut closure: F) -> Result<R> where F:
         return res;
     }
     let _ = tx.commit();
+
+    drop(binding);
     return res;
 }
