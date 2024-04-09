@@ -59,18 +59,7 @@ impl foundation::model::BaseModel for TestUser {
     }
 
     fn get_field_sql(&self, alias: &str) -> String {
-        let mut columns = String::from("");
-        for c in FIELDS {
-            if "" != columns {
-                columns.push_str(", ");
-            }
-            if "" != alias {
-                columns.push_str(&format!("{}.{}" , alias, c));
-            } else {
-                columns.push_str(&format!("{}" , c));
-            }
-        }
-        return columns;
+        return get_field_sql(alias);
     }
 
     fn get_field_sql_not_pk(&self, alias: &str) -> String {
@@ -141,6 +130,7 @@ impl foundation::model::BaseModel for TestUser {
 
 }
 
+/// get_field_sql 获取字段列 sql
 pub fn get_field_sql(alias: &str) -> String {
     let mut columns = String::from("");
     for c in FIELDS {

@@ -31,7 +31,7 @@ fn main() {
     // test_add();
     test_find();
     // test_update();
-    // test_query_list();
+    test_query_list();
 
     // let t_sql = model::test_user::get_field_sql_not_pk("hello");
     // info!("{}", t_sql);
