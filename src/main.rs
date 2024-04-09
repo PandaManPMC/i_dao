@@ -1,3 +1,4 @@
+use std::time::SystemTime;
 use crate::base_service::test_user_sve::add;
 
 mod model;
@@ -25,9 +26,9 @@ fn main() {
     // test_add_batch();
 
     // test_add();
-    // test_find();
+    test_find();
     // test_update();
-    test_query_list();
+    // test_query_list();
 
     // let t_sql = model::test_user::get_field_sql_not_pk("hello");
     // info!("{}", t_sql);
@@ -38,20 +39,23 @@ fn main() {
 
 fn test_add_batch() {
     let mut lst: Vec<&mut model::test_user::TestUser> = Vec::new();
-    let mut binding = model::test_user::TestUser::new("xcy 0404 01".to_string(), 1);
+    let mut binding = model::test_user::TestUser::new("xcy 0409 01 2".to_string(), 1);
     lst.push(&mut binding);
-    let mut binding2 = model::test_user::TestUser::new("xcy 0404 03".to_string(), 1);
+    let mut binding2 = model::test_user::TestUser::new("xcy 0409 03 2".to_string(), 1);
     lst.push(&mut binding2);
-    let mut binding3 = model::test_user::TestUser::new("xcy 0404 02".to_string(), 1);
+    let mut binding3 = model::test_user::TestUser::new("xcy 0409 02 2".to_string(), 1);
     lst.push(&mut binding3);
     let res = base_service::test_user_sve::add_batch(&mut lst);
     debug!("{:?}", res);
+    debug!("{:?}", lst);
 }
 
 fn test_query_list(){
     let mut params:HashMap<String, Box<dyn Any>> = HashMap::new();
-    params.insert(String::from(format!("{}state", foundation::dao::GT)), Box::new(1));
-    params.insert(String::from("user_name"), Box::new(String::from("XINYI_Doge")));
+    // params.insert(String::from(format!("{}state", foundation::dao::GT)), Box::new(1));
+    params.insert(String::from(format!("{}state", foundation::dao::GT_EQ)), Box::new(1));
+
+    // params.insert(String::from("user_name"), Box::new(String::from("XINYI_Doge")));
     params.insert(String::from(format!("{}id", foundation::dao::GT)), Box::new(1u64));
 
     let page_index = foundation::dao::Condition::PageIndex(1);
@@ -59,46 +63,51 @@ fn test_query_list(){
     let asc = foundation::dao::Condition::OrderByAESOrDESC(1);
 
 
-    let result = base_service::test_user_sve::query_list(params, &[page_index, page_size, asc, ]);
+    let result = base_service::test_user_sve::query_list(&params, &[page_index, page_size, asc, ]);
+    if result.is_err(){
+        warn!("出现异常 {:?}", result);
+        return;
+    }
     let res = result.unwrap();
     for i in &res {
-        println!(
+        debug!(
             "id = {}, created_at = {}, updated_at = {}, user_name = {}, state = {}",
             i.id, i.created_at, i.updated_at, i.user_name, i.state
         );
 
         let redacted_bson = bson::to_bson(&i).unwrap();
-        println!("{}", redacted_bson);
+        debug!("{}", redacted_bson);
     }
 }
 
 fn test_update() {
-    println!("----------- test_update --------------------");
-    let id: u64 = 79;
+    debug!("----------- test_update --------------------");
+    let id: u64 = 50;
 
     let res = base_service::test_user_sve::find_by_id(id);
-    println!("{:?}", res);
+    debug!("{:?}", res);
     if res.is_err(){
         warn!("test_find 出现异常 {:?}", res);
         return;
     }
 
     let t = res.unwrap();
-    println!("{:?}", t);
+    debug!("{:?}", t);
     match t {
         Some(mut user) => {
-            println!("找到用户 user={:?}", user);
-            user.user_name = String::from("XINYI_Doge");
+            debug!("找到用户 user={:?}", user);
+            // user.user_name = String::from("XINYI_Doge");
+            user.state = 2;
             let u_res = base_service::test_user_sve::update_by_id(&mut user);
             if u_res.is_err() {
-                println!("出现异常 {:?}", u_res);
+                warn!("出现异常 {:?}", u_res);
                 return;
             }
 
-            println!("更新后的 user={:?}", user)
+            debug!("更新后的 user={:?}", user)
         },
         None => {
-            println!("未找到用户id={}", id);
+            debug!("未找到用户id={}", id);
         }
     }
 
@@ -106,7 +115,7 @@ fn test_update() {
 
 fn test_find(){
     println!("----------- test_find --------------------");
-    let id: u64 = 77;
+    let id: u64 = 52;
 
     let res = base_service::test_user_sve::find_by_id(id);
     println!("{:?}", res);
@@ -128,16 +137,17 @@ fn test_find(){
 }
 
 fn test_add(){
-    // let mut t1 = model::test_user::TestUser::new("xcy ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd".to_string(), 1);
-    let mut t1 = model::test_user::TestUser::new("xcy 0404 1".to_string(), 1);
+    // let mut t1 = model::test_user::TestUser::new("xcy".to_string(), 1);
 
-    println!("{:?}", t1);
+    let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
+    let mut t1 = model::test_user::TestUser::new(format!("xcy 0409 {}", now), 1);
+    debug!("{:?}", t1);
 
     let add_res = base_service::test_user_sve::add(&mut t1);
-    println!("{:?}", add_res);
+    debug!("{:?}", add_res);
     if add_res.is_err() {
-        println!("调用 service 方法出现错误");
+        debug!("调用 service 方法出现错误");
     }
-    println!("{:?}", t1);
+    info!("{:?}", t1);
 }
 

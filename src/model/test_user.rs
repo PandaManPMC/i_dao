@@ -30,6 +30,18 @@ impl TestUser {
     pub fn new_full(id: u64, created_at: u64,updated_at: u64,  user_name: String, state: u8) -> TestUser{
         TestUser{id, created_at, updated_at, user_name, state}
     }
+
+    fn set_pk(&mut self, pk: u64) {
+        self.id = pk;
+    }
+
+    fn set_created_at(&mut self, at: u64) {
+        self.created_at = at;
+    }
+
+    fn set_updated_at(&mut self, at: u64) {
+        self.updated_at = at;
+    }
 }
 
 impl foundation::model::BaseModel for TestUser {

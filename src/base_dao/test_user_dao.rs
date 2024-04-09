@@ -7,7 +7,7 @@ use std::fmt;
 use std::collections::HashMap;
 use std::any::Any;
 
-pub fn query_list(tx: &mut Transaction, condition_params: HashMap<String, Box<dyn Any>>, condition: &[foundation::dao::Condition]) -> Result<Vec<model::test_user::TestUser>> {
+pub fn query_list(tx: &mut Transaction, condition_params: &HashMap<String, Box<dyn Any>>, condition: &[foundation::dao::Condition]) -> Result<Vec<model::test_user::TestUser>> {
     let mut query_sql = format!("SELECT {} FROM {}", model::test_user::get_field_sql("") ,model::test_user::TABLE_NAME);
     let mut params: Vec<Value> = vec![];
 

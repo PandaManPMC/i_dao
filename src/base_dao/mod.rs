@@ -6,6 +6,7 @@ use mysql::prelude::*;
 use std::time::{SystemTime, Duration};
 use crate::{foundation, model};
 use std::fmt;
+use crate::foundation::model::BaseModel;
 
 /// add 插入单个数据，会回填 pk、created_at、updated_at
 pub fn add(tx: &mut Transaction, m: &mut impl foundation::model::BaseModel)  -> Result<()> {
@@ -29,7 +30,6 @@ pub fn add(tx: &mut Transaction, m: &mut impl foundation::model::BaseModel)  -> 
 
 /// add_batch 插入批量数据（需自行控制数量，最优在 500 条内），不会回填 pk（因为我不知道怎么获取），会回填created_at、updated_at
 pub fn add_batch(tx: &mut Transaction, lst: &mut Vec<&mut impl foundation::model::BaseModel>)  -> Result<()> {
-
     let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
     for val in &mut *lst {
         val.set_created_at(now);
@@ -51,7 +51,6 @@ pub fn add_batch(tx: &mut Transaction, lst: &mut Vec<&mut impl foundation::model
         return result;
     }
 
-    // m.set_pk(tx.last_insert_id().unwrap());
     return Ok(());
 }
 
