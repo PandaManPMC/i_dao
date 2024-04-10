@@ -5,16 +5,16 @@ use std::collections::HashMap;
 use std::any::Any;
 use mysql::prelude::TextQuery;
 use std::time::{Duration, SystemTime};
-use crate::i_test::test_user::TestUser;
-use crate::i_test::test_user_sve;
-use crate::{i_test, i_mysql, dao, model, sql};
+use crate::library_test::test_user::TestUser;
+use crate::library_test::test_user_sve;
+use crate::{library_test, i_mysql, dao, model, sql};
 
 fn test_init() {
     env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
     debug!("Hello, world!");
 
-    i_test::set_date_source_key(String::from("mysql_db1"));
-    debug!("{:?}", i_test::get_data_source_key());
+    library_test::set_date_source_key(String::from("mysql_db1"));
+    debug!("{:?}", library_test::get_data_source_key());
 
     let opts = OptsBuilder::new()
         .ip_or_hostname(Some("localhost"))
@@ -24,8 +24,8 @@ fn test_init() {
         .tcp_port(3306)
         .tcp_connect_timeout(Some(Duration::from_secs(30)));
 
-    i_mysql::init(i_test::get_data_source_key(), opts, 200, 5);
-    let conn = i_mysql::get_conn(&i_test::get_data_source_key());
+    i_mysql::init(library_test::get_data_source_key(), opts, 200, 5);
+    let conn = i_mysql::get_conn(&library_test::get_data_source_key());
     trace!("{:?}", conn);
 }
 
@@ -42,7 +42,7 @@ mod tests {
         let mut t1 = TestUser::new(format!("xcy 0409 {}", now), 1);
         debug!("{:?}", t1);
 
-        let add_res = i_test::test_user_sve::add(&mut t1);
+        let add_res = library_test::test_user_sve::add(&mut t1);
         debug!("{:?}", add_res);
         if add_res.is_err() {
             debug!("调用 service 方法出现错误");
