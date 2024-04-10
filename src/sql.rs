@@ -1,8 +1,6 @@
 use log::debug;
-use crate::foundation;
 use std::any::Any;
 use r2d2_mysql::mysql::{Value};
-
 
 /// LT 小于
 pub const LT:&str = "?<?";
@@ -18,8 +16,6 @@ pub const GT_EQ:&str = "?>=";
 
 /// NO_EQ 不等于
 pub const NO_EQ:&str = "!=?";
-
-
 
 // Condition SQL 列表查询条件
 #[derive(Debug)]
@@ -47,7 +43,7 @@ pub fn sql_placeholder(count: u16) -> String {
 }
 
 /// pot_base_condition 基础条件分拣
-pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[foundation::dao::Condition]) -> (String, i64, i64, String, String){
+pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[Condition]) -> (String, i64, i64, String, String){
     let mut where_sql = String::from("");
     let mut page_index:i64 = 1;
     let mut page_size:i64 = 20;
@@ -56,13 +52,13 @@ pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[foundation::dao:
 
     for c in condition{
         match c {
-            foundation::dao::Condition::PageIndex(a_page_index) => {
+            Condition::PageIndex(a_page_index) => {
                 page_index = *a_page_index
             },
-            foundation::dao::Condition::PageSize(a_page_size) => {
+            Condition::PageSize(a_page_size) => {
                 page_size = *a_page_size;
             },
-            foundation::dao::Condition::CreateTimeBegin(create_time_begin) => {
+            Condition::CreateTimeBegin(create_time_begin) => {
                 if "" != where_sql {
                     where_sql = format!("{} AND created_at >= ?", where_sql)
                 } else {
@@ -70,7 +66,7 @@ pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[foundation::dao:
                 }
                 params.push(create_time_begin.into());
             },
-            foundation::dao::Condition::CreateTimeEnd(create_time_end) => {
+            Condition::CreateTimeEnd(create_time_end) => {
                 if "" != where_sql {
                     where_sql = format!("{} AND created_at < ?", where_sql);
                 } else {
@@ -78,10 +74,10 @@ pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[foundation::dao:
                 }
                 params.push(create_time_end.into());
             },
-            foundation::dao::Condition::OrderByField(order_by_field) => {
+            Condition::OrderByField(order_by_field) => {
                 order_by_sql_field = String::from(order_by_field);
             },
-            foundation::dao::Condition::OrderByAESOrDESC(order_by_aes_or_desc) => {
+            Condition::OrderByAESOrDESC(order_by_aes_or_desc) => {
                 if 1 == *order_by_aes_or_desc {
                     order_by_sql_type = "ASC".to_string();
                 }
@@ -190,23 +186,23 @@ pub fn get_real_key_operator(key: String) -> (String, String) {
     if 3 < key.len() {
         let prefix = key[0..3].to_string();
         match prefix.as_str() {
-            foundation::dao::LT => {
+            LT => {
                 i_key = key[3..].to_string();
                 operator = "<";
             },
-            foundation::dao::GT => {
+            GT => {
                 i_key = key[3..].to_string();
                 operator = ">";
             },
-            foundation::dao::LT_EQ => {
+            LT_EQ => {
                 i_key = key[3..].to_string();
                 operator = "<=";
             },
-            foundation::dao::GT_EQ => {
+            GT_EQ => {
                 i_key = key[3..].to_string();
                 operator = ">=";
             },
-            foundation::dao::NO_EQ => {
+            NO_EQ => {
                 i_key = key[3..].to_string();
                 operator = "!=";
             },

@@ -1,5 +1,4 @@
-use log::info;
-use crate::{foundation, model};
+use crate::{model};
 use serde::{Serialize, Deserialize};
 use r2d2_mysql::mysql::{params, Row};
 use r2d2_mysql::mysql::params::Params;
@@ -44,7 +43,7 @@ impl TestUser {
     }
 }
 
-impl foundation::model::BaseModel for TestUser {
+impl model::BaseModel for TestUser {
 
     fn get_table_name(&self) -> &str {
         return TABLE_NAME;
