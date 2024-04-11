@@ -33,9 +33,7 @@ pub fn get_conn(data_source_key: &str) -> std::result::Result<r2d2::PooledConnec
 
     match ds {
         Some(pool) => {
-            trace!("{:?}", pool);
             let conn = pool.get();
-            trace!("{:?}", conn);
             return Ok(conn?);
         },
         None => {
@@ -48,17 +46,29 @@ pub fn get_conn(data_source_key: &str) -> std::result::Result<r2d2::PooledConnec
 
 /// start_tx 启动事务
 pub fn start_tx<F,R,E>(data_source_key: &str,mut closure: F) -> Result<R, E> where F:  FnMut(&mut r2d2_mysql::mysql::Transaction) -> Result<R, E>, R: std::fmt::Debug, E: std::fmt::Debug {
-    let conn = get_conn(data_source_key);
-    let mut binding = conn.unwrap();
-    let mut tx = binding.start_transaction(r2d2_mysql::mysql::TxOpts::default()).unwrap();
+    let mut conn = get_conn(data_source_key).unwrap();
+    let mut tx = conn.start_transaction(r2d2_mysql::mysql::TxOpts::default()).unwrap();
     let res = closure(&mut tx);
     if res.is_err() {
         let _ = tx.rollback();
+        drop(conn);
         warn!("i_mysql::start_tx 事务失败 回滚! res={:?}", res);
         return res;
     }
     let _ = tx.commit();
 
-    drop(binding);
+    drop(conn);
+    return res;
+}
+
+/// direct 不开启事务，直连操作数据库
+pub fn direct<F,R,E>(data_source_key: &str,mut closure: F) -> Result<R, E> where F:  FnMut(&mut r2d2::PooledConnection<MySqlConnectionManager>) -> Result<R, E>, R: std::fmt::Debug, E: std::fmt::Debug {
+    let mut conn = get_conn(data_source_key).unwrap();
+    let res = closure(&mut conn);
+    drop(conn);
+    if res.is_err() {
+        warn!("i_mysql::direct 失败 res={:?}", res);
+        return res;
+    }
     return res;
 }

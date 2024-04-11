@@ -4,6 +4,8 @@ use std::collections::HashMap;
 use std::any::Any;
 use std::result::Result::Ok;
 use r2d2_mysql::mysql::Transaction;
+use r2d2_mysql::{MySqlConnectionManager, r2d2};
+use crate::i_mysql::get_conn;
 
 pub fn add(m: &mut test_user::TestUser) -> Result<(), Box<dyn std::error::Error>> {
     let mut call = | tx:&mut Transaction | -> Result<(), Box<dyn std::error::Error>>  {
@@ -40,4 +42,12 @@ pub fn find_by_id(id: u64) -> Result<Option<test_user::TestUser>, Box<dyn std::e
         return Ok(result?);
     };
     return Ok(i_mysql::start_tx(&library_test::get_data_source_key(), &mut call)?);
+}
+
+pub fn query_count(params: &HashMap<String, Box<dyn Any>>, condition: &[sql::Condition]) -> Result<u64, Box<dyn std::error::Error>> {
+    let mut call = | conn:&mut r2d2::PooledConnection<MySqlConnectionManager> |  -> Result<u64, Box<dyn std::error::Error>>  {
+        let result = test_user_dao::query_count(conn, params, condition);
+        return Ok(result?);
+    };
+    return Ok(i_mysql::direct(&library_test::get_data_source_key(), &mut call)?);
 }

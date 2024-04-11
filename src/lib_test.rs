@@ -3,11 +3,10 @@ use env_logger::Env;
 use log::{debug, info, trace, warn};
 use std::collections::HashMap;
 use std::any::Any;
-use mysql::prelude::TextQuery;
 use std::time::{Duration, SystemTime};
 use crate::library_test::test_user::TestUser;
 use crate::library_test::test_user_sve;
-use crate::{library_test, i_mysql, dao, model, sql};
+use crate::{library_test, i_mysql, sql};
 
 fn test_init() {
     env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
@@ -89,19 +88,24 @@ mod tests {
         let page_size = sql::Condition::PageSize(3);
         let asc = sql::Condition::OrderByAESOrDESC(1);
 
+        let bc = [page_index, page_size, asc, ];
 
-        let result = test_user_sve::query_list(&params, &[page_index, page_size, asc, ]);
+        let result = test_user_sve::query_list(&params, &bc);
         if result.is_err(){
             warn!("出现异常 {:?}", result);
             return;
         }
         let res = result.unwrap();
+        info!("查询到={:?}条", res.len());
         for i in &res {
             debug!(
                 "id = {}, created_at = {}, updated_at = {}, user_name = {}, state = {}",
                 i.id, i.created_at, i.updated_at, i.user_name, i.state
             );
         }
+
+        let result = test_user_sve::query_count(&params, &bc);
+        info!("查询 query_count 数量={:?}", result)
     }
 
     #[test]
@@ -109,7 +113,7 @@ mod tests {
         test_init();
 
         debug!("----------- test_update --------------------");
-        let id: u64 = 71;
+        let id: u64 = 75;
 
         let res = test_user_sve::find_by_id(id);
         debug!("{:?}", res);
@@ -143,14 +147,15 @@ mod tests {
     fn test_add_batch(){
         test_init();
         let mut lst: Vec<&mut TestUser> = Vec::new();
-        let mut binding = TestUser::new("xcy 0409 01 4".to_string(), 1);
+        let mut binding = TestUser::new("xcy 0409 01 6".to_string(), 1);
         lst.push(&mut binding);
-        let mut binding2 = TestUser::new("xcy 0409 03 4".to_string(), 1);
+        let mut binding2 = TestUser::new("xcy 0409 03 6".to_string(), 1);
         lst.push(&mut binding2);
-        let mut binding3 = TestUser::new("xcy 0409 02 4".to_string(), 1);
+        let mut binding3 = TestUser::new("xcy 0409 02 6".to_string(), 1);
         lst.push(&mut binding3);
         let res = test_user_sve::add_batch(&mut lst);
         debug!("{:?}", res);
         debug!("{:?}", lst);
     }
+
 }

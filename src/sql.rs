@@ -89,6 +89,37 @@ pub fn pot_base_condition(params: &mut Vec<Value>, condition: &[Condition]) -> (
     return (where_sql, page_index, page_size, order_by_sql_field, order_by_sql_type)
 }
 
+/// pot_base_condition_by_time 基础时间条件分拣
+pub fn pot_base_condition_by_time(params: &mut Vec<Value>, condition: &[Condition]) -> String {
+    let mut where_sql = String::from("");
+
+    for c in condition{
+        match c {
+            Condition::CreateTimeBegin(create_time_begin) => {
+                if "" != where_sql {
+                    where_sql = format!("{} AND created_at >= ?", where_sql)
+                } else {
+                    where_sql = " created_at >= ?".to_string()
+                }
+                params.push(create_time_begin.into());
+            },
+            Condition::CreateTimeEnd(create_time_end) => {
+                if "" != where_sql {
+                    where_sql = format!("{} AND created_at < ?", where_sql);
+                } else {
+                    where_sql = " created_at < ?".to_string()
+                }
+                params.push(create_time_end.into());
+            },
+            _ => {
+
+            }
+        }
+    }
+
+    return where_sql
+}
+
 /// pot_params_condition 参数条件分拣
 pub fn pot_params_condition(params: &mut Vec<Value>, val :&Box<dyn Any>) -> bool {
     let mut i = 0;
