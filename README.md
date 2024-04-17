@@ -2,6 +2,8 @@
 
 使用的例子 https://github.com/PandaManPMC/i_dao_example
 
+使用需另外加入 `i_dao_proc_macro = "0.1.0"` 依赖。
+
 
 ## 连接池
 
