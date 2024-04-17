@@ -724,6 +724,8 @@ dependencies = [
 [[package]]
 name = "i_dao_proc_macro"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "658f600bd8c991b56d2099389d47826b49c50b1f05022565ac98c6df9a11e67c"
 dependencies = [
  "quote",
  "syn 1.0.109",
