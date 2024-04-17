@@ -147,11 +147,11 @@ mod tests {
     fn test_add_batch(){
         test_init();
         let mut lst: Vec<&mut TestUser> = Vec::new();
-        let mut binding = TestUser::new("xcy 0409 01 6".to_string(), 1);
+        let mut binding = TestUser::new("xcy 0409 01 7".to_string(), 1);
         lst.push(&mut binding);
-        let mut binding2 = TestUser::new("xcy 0409 03 6".to_string(), 1);
+        let mut binding2 = TestUser::new("xcy 0409 03 7".to_string(), 1);
         lst.push(&mut binding2);
-        let mut binding3 = TestUser::new("xcy 0409 02 6".to_string(), 1);
+        let mut binding3 = TestUser::new("xcy 0409 02 7".to_string(), 1);
         lst.push(&mut binding3);
         let res = test_user_sve::add_batch(&mut lst);
         debug!("{:?}", res);
