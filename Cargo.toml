@@ -1,6 +1,6 @@
 [package]
 name = "i_dao"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["PMC <pandamancoin@gmail.com>"]
 rust-version = "1.74"
@@ -18,3 +18,4 @@ r2d2_mysql = "24.0.0"
 lazy_static = "1.4.0"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.115"
+i_dao_proc_macro={path= "i_dao_proc_macro" }

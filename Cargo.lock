@@ -709,15 +709,24 @@ checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "i_dao"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "env_logger",
+ "i_dao_proc_macro",
  "lazy_static",
  "log",
  "mysql 25.0.0",
  "r2d2_mysql",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "i_dao_proc_macro"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
