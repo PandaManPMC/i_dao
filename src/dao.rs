@@ -3,6 +3,7 @@ use std::time::{SystemTime};
 use crate::model::BaseModel;
 use r2d2_mysql::mysql::{Transaction};
 use r2d2_mysql::mysql::prelude::Queryable;
+use r2d2_mysql::mysql::Params;
 
 /// add 插入单个数据，会回填 pk、created_at、updated_at
 pub fn add(tx: &mut Transaction, m: &mut impl BaseModel)  -> Result<(), Box<dyn std::error::Error>> {
@@ -12,11 +13,11 @@ pub fn add(tx: &mut Transaction, m: &mut impl BaseModel)  -> Result<(), Box<dyn 
     let fields = m.get_params_insert();
 
     let stmt = format!("INSERT INTO {} ({}) VALUE ({})", m.get_table_name(), fields.1, fields.2);
-    debug!("b_d::add sql={}", stmt);
-    let result = tx.exec_drop(stmt, fields.0);
+    debug!("dao::add sql={}", stmt);
+    let result = tx.exec_drop(stmt.clone(), fields.0);
 
     if result.is_err() {
-        warn!("b_d::add 失败！ res={:?}", result);
+        warn!("dao::add 失败！ res={:?} sql={:?}", result, stmt.clone());
         return Ok(result?);
     }
 
@@ -36,14 +37,14 @@ pub fn add_batch(tx: &mut Transaction, lst: &mut Vec<&mut impl BaseModel>)  -> R
     let fields = m.get_params_insert();
 
     let stmt = format!("INSERT INTO {} ({}) VALUES ({})", m.get_table_name(), fields.1, fields.2);
-    debug!("b_d::add_batch sql={}", stmt);
+    debug!("dao::add_batch sql={}", stmt);
 
-    let result = tx.exec_batch(stmt,
+    let result = tx.exec_batch(stmt.clone(),
             lst.iter().map(|m| m.get_params_insert().0)
     );
 
     if result.is_err() {
-        warn!("b_d::add_batch 失败！ res={:?}", result);
+        warn!("dao::add_batch 失败！ res={:?} sql={:?}", result, stmt);
         return Ok(result?);
     }
 
@@ -58,13 +59,28 @@ pub fn update_by_pk(tx: &mut Transaction, m: &mut impl BaseModel) -> Result<() ,
     let fields = m.get_params_update_by_pk();
 
     let stmt = format!("UPDATE {} SET {} WHERE {}", m.get_table_name(), fields.1, fields.2);
-    debug!("b_d::add sql={}", stmt);
+    debug!("dao::update_by_pk sql={}", stmt);
     let stmt = tx.prep(stmt)
         .unwrap();
 
     let result = tx.exec_drop(&stmt, fields.0);
     if result.is_err() {
-        warn!("b_d::test_user_dao::update_by_id 失败！ res={:?}", result);
+        warn!("dao::update_by_id 失败！ res={:?} sql={:?}", result, stmt);
+        return Ok(result?);
+    }
+
+    return Ok(());
+}
+
+/// update_by_sql 根据 sql 执行更新
+pub fn update_by_sql(tx: &mut Transaction, sql: String, params: Params) -> Result<() ,Box<dyn std::error::Error>> {
+    debug!("dao::update_by_sql sql={}", sql);
+    let stmt = tx.prep(sql.clone())
+        .unwrap();
+
+    let result = tx.exec_drop(&stmt, params);
+    if result.is_err() {
+        warn!("dao::update_by_sql 失败！ res={:?} sql={:?}", result, sql);
         return Ok(result?);
     }
 
