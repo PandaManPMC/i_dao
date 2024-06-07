@@ -1,6 +1,7 @@
 pub mod test_user;
 pub mod test_user_dao;
 pub mod test_user_sve;
+pub mod test_user_sve_tok;
 
 use std::sync::RwLock;
 

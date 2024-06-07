@@ -30,7 +30,41 @@ fn test_init() {
 
 #[cfg(test)]
 mod tests {
+    use crate::tok;
     use super::*;
+
+    #[tokio::test]
+    async fn test_tokio(){
+        env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
+        debug!("Hello, world!");
+
+        library_test::set_date_source_key(String::from("mysql_db1"));
+        debug!("{:?}", library_test::get_data_source_key());
+
+        let opts = OptsBuilder::new()
+            .ip_or_hostname(Some("localhost"))
+            .user(Some("root"))
+            .pass(Some("123456"))
+            .db_name(Some("test_rs"))
+            .tcp_port(3306)
+            .tcp_connect_timeout(Some(Duration::from_secs(30)));
+
+        tok::i_mysql::init(library_test::get_data_source_key(), opts, 200, 5).await;
+        let conn = i_mysql::get_conn(&library_test::get_data_source_key());
+        trace!("{:?}", conn);
+
+        let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
+        let mut t1 = TestUser::new(format!("xcy 0409 {}", now), 1);
+        debug!("{:?}", t1);
+
+        let add_res = library_test::test_user_sve_tok::add(&mut t1).await;
+        debug!("{:?}", add_res);
+        if add_res.is_err() {
+            debug!("调用 service 方法出现错误");
+        }
+        info!("{:?}", t1);
+
+    }
 
     #[test]
     fn test_add() {
