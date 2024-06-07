@@ -30,6 +30,21 @@ pub enum Condition {
     OrderByAESOrDESC(u8),
 }
 
+pub enum Params {
+    None,
+    Integer8(i8),
+    Integer16(i16),
+    Integer32(i32),
+    Integer64(i64),
+    Integer128(i128),
+    UInteger8(u8),
+    UInteger16(u16),
+    UInteger32(u32),
+    UInteger64(u64),
+    UInteger128(u128),
+    Str(String),
+}
+
 /// sql_placeholder 生成指定数量的 sql 占位符 ?，使用 , 隔开
 pub fn sql_placeholder(count: u16) -> String {
     let mut p = String::from("");
@@ -206,6 +221,59 @@ pub fn pot_params_condition(params: &mut Vec<Value>, val :&Box<dyn Any>) -> bool
 
     debug!("pot_params_condition 参数未找到条件!");
     return false;
+}
+
+/// pot_params_condition_by_enum 参数条件分拣
+pub fn pot_params_condition_by_enum(params: &mut Vec<Value>, val :&Params) -> bool {
+    return match val {
+        Params::Str(v) => {
+                params.push(v.into());
+            true
+            },
+        Params::Integer8(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::Integer16(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::Integer32(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::Integer64(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::Integer128(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::UInteger8(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::UInteger16(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::UInteger32(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::UInteger64(v) => {
+            params.push(v.into());
+            true
+        },
+        Params::UInteger128(v) => {
+            params.push(v.into());
+            true
+        },
+            _ => {
+                false
+            }
+        }
 }
 
 

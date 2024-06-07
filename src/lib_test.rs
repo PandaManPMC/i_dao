@@ -30,9 +30,57 @@ fn test_init() {
 
 #[cfg(test)]
 mod tests {
+    use crate::library_test::test_user_sve_tok;
     use crate::tok;
     use super::*;
 
+    #[tokio::test]
+    async fn test_tokio_query_list_by_enum() {
+        env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
+        debug!("Hello, world!");
+
+        library_test::set_date_source_key(String::from("mysql_db1"));
+        debug!("{:?}", library_test::get_data_source_key());
+
+        let opts = OptsBuilder::new()
+            .ip_or_hostname(Some("localhost"))
+            .user(Some("root"))
+            .pass(Some("123456"))
+            .db_name(Some("test_rs"))
+            .tcp_port(3306)
+            .tcp_connect_timeout(Some(Duration::from_secs(30)));
+
+        tok::i_mysql::init(library_test::get_data_source_key(), opts, 200, 5).await;
+        let conn = i_mysql::get_conn(&library_test::get_data_source_key());
+        trace!("{:?}", conn);
+
+        let mut params:HashMap<String, sql::Params> = HashMap::new();
+        params.insert(String::from(format!("{}state", sql::GT_EQ)), sql::Params::UInteger8(1));
+        params.insert(String::from(format!("{}id", sql::GT)), sql::Params::UInteger64(1));
+
+        let page_index = sql::Condition::PageIndex(1);
+        let page_size = sql::Condition::PageSize(3);
+        let asc = sql::Condition::OrderByAESOrDESC(1);
+
+        let bc = [page_index, page_size, asc, ];
+
+        let result = test_user_sve_tok::query_list_by_enum(&params, &bc).await;
+        if result.is_err(){
+            warn!("出现异常 {:?}", result);
+            return;
+        }
+        let res = result.unwrap();
+        info!("查询到={:?}条", res.len());
+        for i in &res {
+            debug!(
+                "id = {}, created_at = {}, updated_at = {}, user_name = {}, state = {}",
+                i.id, i.created_at, i.updated_at, i.user_name, i.state
+            );
+        }
+
+        // let result = test_user_sve::query_count(&params, &bc);
+        // info!("查询 query_count 数量={:?}", result)
+    }
     #[tokio::test]
     async fn test_tokio(){
         env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
