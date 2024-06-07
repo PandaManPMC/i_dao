@@ -27,20 +27,23 @@ pub async fn init(data_source_key: String, opts: OptsBuilder, max_size: u32, min
 }
 
 /// get_conn 获取连接
-pub async fn get_conn(data_source_key: &str) -> std::result::Result<r2d2::PooledConnection<MySqlConnectionManager>, Box<dyn std::error::Error>> {
+pub async fn get_conn(data_source_key: &str) -> std::result::Result<r2d2::PooledConnection<MySqlConnectionManager>, String> {
     let mr = MYSQL_POOLS.read().await;
     let ds = mr.get(data_source_key);
 
     match ds {
         Some(pool) => {
             let conn = pool.get();
-            return Ok(conn?);
+            if conn.is_err(){
+                return Err(conn.err().unwrap().to_string())
+            }
+            return Ok(conn.unwrap());
         },
         None => {
             trace!("get_conn 未找到 {}", data_source_key)
         }
     }
-    return Err(Box::new(Error::MySqlError(MySqlError{state: String::from("data source notfound"), message: String::from(format!("data source notfound {}", data_source_key)), code: 404})));
+    return Err("data source notfound".to_string());
 }
 
 
